@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 // Verified Imports
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.geometry.BezierPoint;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.paths.Path; // Use the pathgen Path class
 import com.pedropathing.paths.PathChain;
