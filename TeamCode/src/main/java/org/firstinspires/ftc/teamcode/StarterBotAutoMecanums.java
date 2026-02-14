@@ -51,20 +51,6 @@ public class StarterBotAutoMecanums extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
-        leftDrive.setPower(1);
-        rightDrive.setPower(1);
-        leftDriveBack.setPower(1);
-        rightDriveBack.setPower(-1);
-        sleep(200);
-        leftDriveBack.setPower(speed);
-        rightDriveBack.setPower(speed);
-        leftDrive.setPower(speed);
-        rightDrive.setPower(speed);
-        sleep(100);
-        leftDrive.setPower(0);
-        rightDrive.setPower(0);
-        leftDriveBack.setPower(0);
-        rightDriveBack.setPower(0);
 
 
         // --- 2. Step 1: Shoot 3 Times ---

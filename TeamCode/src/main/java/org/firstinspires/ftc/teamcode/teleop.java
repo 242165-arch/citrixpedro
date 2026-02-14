@@ -59,7 +59,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 @TeleOp(name = "FinalTeleOp", group = "FinalCode")
 //@Disabled
-public class Onbot extends OpMode {
+public class teleop extends OpMode {
     final double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     final double FULL_SPEED = 1.0;
@@ -70,8 +70,8 @@ public class Onbot extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    final double LAUNCHER_TARGET_VELOCITY = 1125;
-    final double LAUNCHER_MIN_VELOCITY = 1025;
+    final double LAUNCHER_TARGET_VELOCITY = 1100;
+    final double LAUNCHER_MIN_VELOCITY = 1000;
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -88,6 +88,7 @@ public class Onbot extends OpMode {
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
     private DcMotor intake = null;
+    private int shotsFired = 0;
 
     ElapsedTime feederTimer = new ElapsedTime();
 
@@ -226,7 +227,7 @@ public class Onbot extends OpMode {
         }
         if (OuttakeButtonA && !prevOutTakeButtonA) {
             Outtake = !Outtake;
-            launcher.setVelocity(-2000);
+
         }
 
 
@@ -253,7 +254,7 @@ public class Onbot extends OpMode {
          * both motors work to rotate the robot. Combinations of these inputs can be used to create
          * more complex maneuvers.
          */
-        double forward = 2.75;
+        double forward = 1;
         mecanumDrive(-gamepad1.left_stick_y * forward, gamepad1.left_stick_x * forward, gamepad1.right_stick_x * forward);
 
         /*
@@ -334,10 +335,26 @@ public class Onbot extends OpMode {
                 }
                 break;
             case LAUNCH:
-                leftFeeder.setPower(FULL_SPEED);
-                rightFeeder.setPower(FULL_SPEED);
-                feederTimer.reset();
-                launchState = LaunchState.LAUNCHING;
+                if (shotsFired < 3) {
+                    double elapsed = feederTimer.milliseconds();
+
+                    if (elapsed < 400) {
+                        // Phase 1: Extend feeder/Push ball
+                        leftFeeder.setPower(FULL_SPEED);
+                        rightFeeder.setPower(FULL_SPEED);
+                    } else if (elapsed < 700) {
+                        // Phase 2: Retract feeder/Wait for next ball
+                        leftFeeder.setPower(STOP_SPEED);
+                        rightFeeder.setPower(STOP_SPEED);
+                    } else {
+                        // Phase 3: One shot complete, reset timer for the next one
+                        shotsFired++;
+                        feederTimer.reset();
+                    }
+                } else {
+                    // All 3 shots done
+                    launchState = LaunchState.IDLE;
+                }
                 break;
             case LAUNCHING:
                 if (feederTimer.seconds() > FEED_TIME_SECONDS) {
