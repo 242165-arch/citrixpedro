@@ -62,7 +62,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 //@Disabled
 public class Gobilda extends OpMode {
     final double FEED_TIME_SECONDS = 1; //The feeder servos run this long when a shot is requested.
-    final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
+    final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop. yum
     final double FULL_SPEED = 1.0;
 
     /*
