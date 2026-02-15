@@ -1,4 +1,123 @@
 package org.firstinspires.ftc.teamcode;
 
-public class twelveball {
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierLine;
+import com.pedropathing.paths.Path;
+import com.pedropathing.geometry.BezierPoint;
+import com.pedropathing.geometry.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.pedroPathing.Dash.DashboardDrawingHandler;
+
+@Autonomous(name = "RedGoal3BallAuto", group = "Autonomous")
+public class twelveball extends LinearOpMode {
+
+    private Follower follower;
+    private ElapsedTime timer = new ElapsedTime();
+    private int pathState;
+
+    // Hardware - Rename these to match your actual configuration
+    private DcMotorEx shooterMotor;
+    private DcMotor intakeMotor;
+    private DcMotor leftFrontDrive;
+    private DcMotor rightFrontDrive;
+    private DcMotor leftBackDrive;
+    private DcMotor rightBackDrive;
+    private CRServo leftFeeder;
+    private CRServo rightFeeder;
+
+
+    // Define our Poses (X, Y, Heading)
+    // Starting near the Red Goal
+    private final Pose startPose = new Pose(8, 56, Math.toRadians(0));
+    private final Pose scorePose = new Pose(30, 56, Math.toRadians(0));
+
+    private Path scorePath;
+
+    @Override
+    public void runOpMode() {
+        // Initialize Pedro Pathing
+        // New way to initialize
+        follower = Constants.createFollower(hardwareMap);
+        follower.setStartingPose(startPose);
+        // Initialize Hardware
+        leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
+        leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
+        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        shooterMotor = hardwareMap.get(DcMotorEx.class, "launcher");
+        leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
+        rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
+        intakeMotor = hardwareMap.get(DcMotor.class, "intake");
+
+        // Build the path to the goal
+        scorePath = new Path(new BezierLine(startPose, scorePose));
+        scorePath.setConstantHeadingInterpolation(Math.toRadians(0));
+
+        // Wait for Start
+        while (!isStarted() && !isStopRequested()) {
+            follower.update();
+            telemetry.addData("Status", "Initialized - Waiting for Start");
+            telemetry.update();
+        }
+
+        if (isStopRequested()) return;
+
+        // Reset State Machine
+        pathState = 0;
+        timer.reset();
+
+        while (opModeIsActive()) {
+            follower.update();
+            autonomousControl();
+
+            // Feedback for your DECODE Panels
+            DashboardDrawingHandler.drawDebug(follower);
+            telemetry.addData("Path State", pathState);
+            telemetry.update();
+        }
+    }
+
+    public void autonomousControl() {
+        switch (pathState) {
+            case 0: // Move to Goal
+                follower.followPath(scorePath);
+                setPathState(1);
+                break;
+
+            case 1: // Wait until robot reaches the goal
+                if (!follower.isBusy()) {
+                    timer.reset();
+                    setPathState(2);
+                }
+                break;
+
+            case 2: // Shooting Logic
+                // Turn on shooter and intake (to push balls into shooter)
+                shooterMotor.setPower(1.0);
+                intakeMotor.setPower(0.8);
+
+                // Wait 4 seconds to ensure all 3 balls are shot
+                if (timer.seconds() > 4.0) {
+                    shooterMotor.setPower(0);
+                    intakeMotor.setPower(0);
+                    setPathState(3);
+                }
+                break;
+
+            case 3: // Done
+                telemetry.addData("Auto", "Finished!");
+                break;
+        }
+    }
+
+    public void setPathState(int state) {
+        pathState = state;
+    }
 }

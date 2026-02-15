@@ -5,7 +5,7 @@ import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
+import com.pedropathing.ftc.localization.constants.DriveEncoderConstants;
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants();
 
@@ -14,6 +14,7 @@ public class Constants {
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
                 .pathConstraints(pathConstraints)
+                .driveEncoderLocalizer(new DriveEncoderConstants())
                 .build();
     }
 }
