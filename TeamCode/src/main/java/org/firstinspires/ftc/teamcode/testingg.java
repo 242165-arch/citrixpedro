@@ -15,8 +15,8 @@ import com.pedropathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.Dash.DashboardDrawingHandler;
 
-@Autonomous(name = "RedGoal12BallAuto", group = "Autonomous")
-public class twelveball extends LinearOpMode {
+@Autonomous(name = "RedGoal1fjfbbkjf2BallAuto", group = "Autonomous")
+public class testingg extends LinearOpMode {
 
     private Follower follower;
     private ElapsedTime timer = new ElapsedTime();
